@@ -389,6 +389,49 @@ def add_patient():
     mydb.close()
     print("Patient added successfully")
 
+import mysql.connector as con
+
+def add_patient():
+    mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
+    cur = mydb.cursor()
+
+    ID = int(input("Enter patient ID: "))
+    Name = input("Enter patient name: ")
+    Phone_Number = input("Enter patient phone number: ")
+    Address = input("Enter patient address: ")
+    DOB = input("Enter patient date of birth (dd/mm/yyyy): ")
+    Date_of_Appointment = input("Enter date of appointment (dd/mm/yyyy): ")
+    Branch_of_Consultancy = input("Enter branch of consultancy: ")
+    Doctor_ID = int(input("Enter Doctor ID: "))
+    
+    cur.execute("SELECT Name, Speciality FROM doctor WHERE ID=%s", (Doctor_ID,))
+    doctor = cur.fetchone()
+    if not doctor:
+        print("Error: Doctor ID does not exist.")
+        return
+
+    Doctor_Name, Speciality = doctor
+    
+    cur.execute("INSERT INTO patient (ID, Name, Phone_Number, Address, DOB, Date_of_Appointment, Branch_of_Consultancy, Doctor_ID, Doctor_Name, Speciality) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (ID, Name, Phone_Number, Address, DOB, Date_of_Appointment, Branch_of_Consultancy, Doctor_ID, Doctor_Name, Speciality))
+    mydb.commit()
+    
+    admitted = input("Is the patient admitted? (yes/no): ").lower()
+    if admitted == 'yes':
+        Ward_ID = int(input("Enter ward ID: "))
+        cur.execute("SELECT Daily_Rent FROM ward WHERE ID=%s", (Ward_ID,))
+        ward = cur.fetchone()
+        
+        if not ward:
+            print("Error: Ward ID does not exist.")
+            return
+        
+        cur.execute("INSERT INTO admission (Patient_ID, Ward_ID) VALUES (%s, %s)", (ID, Ward_ID))
+        mydb.commit()
+    
+    mydb.close()
+    print("Patient added successfully")
+
 def update_patient():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
@@ -400,37 +443,48 @@ def update_patient():
     print("4. Update Date of Birth")
     print("5. Update Date of Appointment")
     print("6. Update Branch of Consultancy")
+    print("7. Update Ward")
+    print("8. Update Doctor")
     choice = int(input("Enter your choice: "))
 
     if choice == 1:
-        Name = input("Enter updated name: ")
-        z = "UPDATE patient SET Name=%s WHERE ID=%s"
-        y = (Name, ID)
+        new_value = input("Enter updated name: ")
+        column = "Name"
     elif choice == 2:
-        Phone_Number = input("Enter updated phone number: ")
-        z = "UPDATE patient SET Phone_Number=%s WHERE ID=%s"
-        y = (Phone_Number, ID)
+        new_value = input("Enter updated phone number: ")
+        column = "Phone_Number"
     elif choice == 3:
-        Address = input("Enter updated address: ")
-        z = "UPDATE patient SET Address=%s WHERE ID=%s"
-        y = (Address, ID)
+        new_value = input("Enter updated address: ")
+        column = "Address"
     elif choice == 4:
-        DOB = input("Enter updated date of birth (dd/mm/yyyy): ")
-        z = "UPDATE patient SET DOB=%s WHERE ID=%s"
-        y = (DOB, ID)
+        new_value = input("Enter updated date of birth (dd/mm/yyyy): ")
+        column = "DOB"
     elif choice == 5:
-        Date_of_Appointment = input("Enter updated date of appointment (dd/mm/yyyy): ")
-        z = "UPDATE patient SET Date_of_Appointment=%s WHERE ID=%s"
-        y = (Date_of_Appointment, ID)
+        new_value = input("Enter updated date of appointment (dd/mm/yyyy): ")
+        column = "Date_of_Appointment"
     elif choice == 6:
-        Branch_of_Consultancy = input("Enter updated branch of consultancy: ")
-        z = "UPDATE patient SET Branch_of_Consultancy=%s WHERE ID=%s"
-        y = (Branch_of_Consultancy, ID)
+        new_value = input("Enter updated branch of consultancy: ")
+        column = "Branch_of_Consultancy"
+    elif choice == 7:
+        new_value = int(input("Enter updated ward ID: "))
+        cur.execute("SELECT ID FROM ward WHERE ID=%s", (new_value,))
+        if not cur.fetchone():
+            print("Error: Ward ID does not exist.")
+            return
+        column = "Ward_ID"
+    elif choice == 8:
+        new_value = int(input("Enter updated doctor ID: "))
+        cur.execute("SELECT ID FROM doctor WHERE ID=%s", (new_value,))
+        if not cur.fetchone():
+            print("Error: Doctor ID does not exist.")
+            return
+        column = "Doctor_ID"
     else:
         print("Invalid choice")
         return
-
-    cur.execute(z, y)
+    
+    query = f"UPDATE patient SET {column} = %s WHERE ID = %s"
+    cur.execute(query, (new_value, ID))
     if cur.rowcount > 0:
         print("Patient details updated successfully")
     else:
@@ -605,62 +659,42 @@ def update_ward():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
 
-    Name = input("Enter ward name to update: ")
-    print("1. Update Beds Available")
-    print("2. Update Patients Admitted")
+    ID = int(input("Enter ward ID to update: "))
+    print("1. Update Name")
+    print("2. Update Beds Available")
     print("3. Update Daily Rent")
-    print("4. Update Staff Assigned")
-    print("5. Update Doctor")
-    print("6. Update Nurse")
+    print("4. Update Nurse ID")
     choice = int(input("Enter your choice: "))
-
+    
     if choice == 1:
-        Beds_Available = int(input("Enter updated beds available: "))
-        z = "UPDATE ward SET Beds_Available=%s WHERE Name=%s"
-        y = (Beds_Available, Name)
+        new_value = input("Enter updated ward name: ")
+        column = "Name"
     elif choice == 2:
-        Patients_Admitted = int(input("Enter updated patients admitted: "))
-        z = "UPDATE ward SET Patients_Admitted=%s WHERE Name=%s"
-        y = (Patients_Admitted, Name)
+        new_value = int(input("Enter updated number of beds available: "))
+        column = "Beds_Available"
     elif choice == 3:
-        Daily_Rent = float(input("Enter updated daily rent: "))
-        z = "UPDATE ward SET Daily_Rent=%s WHERE Name=%s"
-        y = (Daily_Rent, Name)
+        new_value = float(input("Enter updated daily rent: "))
+        column = "Daily_Rent"
     elif choice == 4:
-        Staff_Assigned = input("Enter updated staff assigned: ")
-        z = "UPDATE ward SET Staff_Assigned=%s WHERE Name=%s"
-        y = (Staff_Assigned, Name)
-    elif choice == 5:
-        Doctor_ID = int(input("Enter new Doctor ID: "))
-        cur.execute("SELECT Name, Speciality FROM doctor WHERE ID=%s", (Doctor_ID,))
-        doctor = cur.fetchone()
-        if not doctor:
-            print("Error: Doctor ID does not exist.")
-            return
-        Doctor_Name, Speciality = doctor
-        z = "UPDATE ward SET Doctor_ID=%s, Doctor_Name=%s, Speciality=%s WHERE Name=%s"
-        y = (Doctor_ID, Doctor_Name, Speciality, Name)
-    elif choice == 6:
-        Nurse_ID = int(input("Enter new Nurse ID: "))
-        cur.execute("SELECT Name, Department FROM nurse WHERE ID=%s", (Nurse_ID,))
-        nurse = cur.fetchone()
-        if not nurse:
+        new_value = int(input("Enter updated Nurse ID: "))
+        cur.execute("SELECT ID FROM nurse WHERE ID=%s", (new_value,))
+        if not cur.fetchone():
             print("Error: Nurse ID does not exist.")
             return
-        Nurse_Name, Department = nurse
-        z = "UPDATE ward SET Nurse_ID=%s, Nurse_Name=%s, Department=%s WHERE Name=%s"
-        y = (Nurse_ID, Nurse_Name, Department, Name)
+        column = "Nurse_ID"
     else:
         print("Invalid choice")
         return
     
-    cur.execute(z, y)
+    query = f"UPDATE ward SET {column} = %s WHERE ID = %s"
+    cur.execute(query, (new_value, ID))
     if cur.rowcount > 0:
         print("Ward details updated successfully")
     else:
-        print("No ward found with the provided name")
+        print("No ward found with the provided ID")
     mydb.commit()
     mydb.close()
+
 
 
 def delete_ward():
