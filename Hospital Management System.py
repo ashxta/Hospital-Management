@@ -63,6 +63,17 @@ def tb_setup():
                         Units_Available INT)''')
         print("Pharmacy Table setup done")
 
+        cur.execute('''CREATE TABLE IF NOT EXISTS labour (
+                        ID INT PRIMARY KEY,
+                        Name VARCHAR(50),
+                        Phone_Number VARCHAR(15),
+                        Address VARCHAR(100),
+                        DOB DATE,
+                        Department VARCHAR(50),
+                        Date_of_Joining DATE)''')
+       print("Labour Table setup done")
+
+
         cur.execute('''CREATE TABLE IF NOT EXISTS ward (
                         Ward_ID INT PRIMARY KEY,
                         Name VARCHAR(50),
