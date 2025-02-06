@@ -5,7 +5,6 @@ y = d.center(85)
 print(x)
 print(y)
 import mysql.connector as con
-import mysql.connector as con
 
 def db_setup():
     mydb = con.connect(host='localhost', user='root', passwd='root')
@@ -94,24 +93,43 @@ def database_setup():
             print("Invalid choice")
 
 # Function to validate date
+from datetime import datetime
+
+def format_valid_date(date_str):
+    """
+    Validates and formats a date from 'DD/MM/YYYY' to 'YYYY-MM-DD'.
+    Returns the formatted date if valid, else returns None.
+    """
+    try:
+        day, month, year = map(int, date_str.split('/'))
+        
+        # Check if the date is valid
+        if not is_valid_date(day, month, year):
+            print("Error: Invalid date entered.")
+            return None
+
+        # Convert to 'YYYY-MM-DD' format
+        return datetime(year, month, day).strftime("%Y-%m-%d")
+    
+    except ValueError:
+        print("Error: Invalid date format. Please enter in 'DD/MM/YYYY'.")
+        return None
+
 def is_valid_date(day, month, year):
-    # Check if the day, month, and year form a valid date
+    """Checks if the given day, month, and year form a valid date."""
     if month in [1, 3, 5, 7, 8, 10, 12]:
         max_day = 31
     elif month in [4, 6, 9, 11]:
         max_day = 30
     elif month == 2:
         if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0):
-            max_day = 29
+            max_day = 29  # Leap year
         else:
             max_day = 28
     else:
-        return False
-    
-    if 1 <= day <= max_day:
-        return True
-    else:
-        return False
+        return False  # Invalid month
+
+    return 1 <= day <= max_day
 
 # Doctor Management
 def add_doctor():
@@ -223,7 +241,7 @@ def display_doctors():
             print("Doctor records successfully displayed")
         elif choice == 2:
             doctor_id = int(input("Enter doctor ID: "))
-            cur.execute("SELECT * FROM doctor WHERE Doctor_ID=%s", (doctor_id,))
+            cur.execute("SELECT * FROM doctor WHERE ID=%s", (doctor_id,))
             record = cur.fetchone()
             if record:
                 print(" | ".join(map(str, record)))
@@ -333,7 +351,7 @@ def display_nurses():
             print("Nurse records successfully displayed")
         elif choice == 2:
             nurse_id = int(input("Enter nurse ID: "))
-            cur.execute("SELECT * FROM nurse WHERE Nurse_ID=%s", (nurse_id,))
+            cur.execute("SELECT * FROM nurse WHERE ID=%s", (nurse_id,))
             record = cur.fetchone()
             if record:
                 print(" | ".join(map(str, record)))
@@ -427,33 +445,38 @@ def delete_labour():
     mydb.commit()
     mydb.close()
 
-def display_wards():
+def display_labours():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
+    
     while True:
-        print('\nPress 1 to display all ward records')
-        print('Press 2 to display a specific ward')
+        print('\nPress 1 to display all labour records')
+        print('Press 2 to display a specific labour')
         print('Press 3 to return\n')
         choice = int(input("Enter choice: "))
+
         if choice == 1:
-            cur.execute("SELECT * FROM ward")
+            cur.execute("SELECT * FROM labour")
             records = cur.fetchall()
-            print('|Ward_ID| |Name| |Beds Available| |Daily Rent| |Nurse_ID|')
+            print('|Labour_ID| |Name| |Phone Number| |Address| |DOB| |Department| |Date of Joining|')
             for record in records:
                 print(" | ".join(map(str, record)))
-            print("Ward records successfully displayed")
+            print("Labour records successfully displayed")
+        
         elif choice == 2:
-            ward_id = int(input("Enter ward ID: "))
-            cur.execute("SELECT * FROM ward WHERE Ward_ID=%s", (ward_id,))
+            labour_id = int(input("Enter labour ID: "))
+            cur.execute("SELECT * FROM labour WHERE ID=%s", (labour_id,))
             record = cur.fetchone()
             if record:
                 print(" | ".join(map(str, record)))
             else:
-                print("No ward found with the provided ID")
+                print("No labour found with the provided ID")
+
         elif choice == 3:
             break
         else:
             print("Invalid choice")
+    
     mydb.close()
 
 
@@ -480,7 +503,7 @@ def add_patient():
     Doctor_Name, Speciality = doctor
     
     cur.execute("INSERT INTO patient (ID, Name, Phone_Number, Address, DOB, Date_of_Appointment, Branch_of_Consultancy, Doctor_ID, Doctor_Name, Speciality) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (ID, Name, Phone_Number, Address, DOB, Date_of_Appointment, Branch_of_Consultancy, Doctor_ID, Doctor_Name, Speciality))
+           (ID, Name, Phone_Number, Address, DOB, Date_of_Appointment, Branch_of_Consultancy, Doctor_ID, Doctor_Name, Speciality))
     mydb.commit()
     
     admitted = input("Is the patient admitted? (yes/no): ").lower()
@@ -635,7 +658,7 @@ def display_patients():
             print("Patient records successfully displayed")
         elif choice == 2:
             patient_id = int(input("Enter patient ID: "))
-            cur.execute("SELECT * FROM patient WHERE Patient_ID=%s", (patient_id,))
+            cur.execute("SELECT * FROM patient WHERE ID=%s", (patient_id,))
             record = cur.fetchone()
             if record:
                 print(" | ".join(map(str, record)))
@@ -649,7 +672,6 @@ def display_patients():
 
 # Pharmacy Management
 def add_pharmacy():
-ef add_pharmacy():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
 
@@ -737,6 +759,7 @@ def delete_pharmacy():
         print("No medicine found with the provided ID")
     mydb.commit()
     mydb.close()
+    
 def display_pharmacy():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
@@ -869,7 +892,7 @@ def display_wards():
         
         elif choice == 2:
             ward_id = int(input("Enter ward ID: "))
-            cur.execute("SELECT * FROM ward WHERE Ward_ID=%s", (ward_id,))
+            cur.execute("SELECT * FROM ward WHERE ID=%s", (ward_id,))
             record = cur.fetchone()
             if record:
                 print(" | ".join(map(str, record)))
