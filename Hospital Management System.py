@@ -5,6 +5,93 @@ y = d.center(85)
 print(x)
 print(y)
 import mysql.connector as con
+import mysql.connector as con
+
+def db_setup():
+    mydb = con.connect(host='localhost', user='root', passwd='root')
+    cur = mydb.cursor()
+    try:
+        cur.execute('CREATE DATABASE IF NOT EXISTS hospital_management')
+        print("Database created")
+    except:
+        print("Database hospital_management already exists")
+    mydb.close()
+
+def tb_setup():
+    mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
+    cur = mydb.cursor()
+    try:
+        cur.execute('''CREATE TABLE IF NOT EXISTS doctor (
+                        ID INT PRIMARY KEY,
+                        Name VARCHAR(50),
+                        Phone_Number VARCHAR(15),
+                        Address VARCHAR(100),
+                        DOB DATE,
+                        Speciality VARCHAR(50),
+                        Branch VARCHAR(50),
+                        Date_of_Joining DATE,
+                        Date_of_Resignation DATE)''')
+        print("Doctor Table setup done")
+
+        cur.execute('''CREATE TABLE IF NOT EXISTS nurse (
+                        ID INT PRIMARY KEY,
+                        Name VARCHAR(50),
+                        Phone_Number VARCHAR(15),
+                        Address VARCHAR(100),
+                        DOB DATE,
+                        Department VARCHAR(50),
+                        Date_of_Joining DATE)''')
+        print("Nurse Table setup done")
+
+        cur.execute('''CREATE TABLE IF NOT EXISTS patient (
+                        ID INT PRIMARY KEY,
+                        Name VARCHAR(50),
+                        Phone_Number VARCHAR(15),
+                        Address VARCHAR(100),
+                        DOB DATE,
+                        Date_of_Appointment DATE,
+                        Branch_of_Consultancy VARCHAR(50),
+                        Doctor_ID INT,
+                        FOREIGN KEY (Doctor_ID) REFERENCES doctor(ID))''')
+        print("Patient Table setup done")
+
+        cur.execute('''CREATE TABLE IF NOT EXISTS pharmacy (
+                        Medicine_ID INT PRIMARY KEY,
+                        Medicine_Name VARCHAR(100),
+                        Manufacturing_Date DATE,
+                        Expiry_Date DATE,
+                        Medicine_Price DECIMAL(10,2),
+                        Units_Available INT)''')
+        print("Pharmacy Table setup done")
+
+        cur.execute('''CREATE TABLE IF NOT EXISTS ward (
+                        Ward_ID INT PRIMARY KEY,
+                        Name VARCHAR(50),
+                        Beds_Available INT,
+                        Daily_Rent DECIMAL(10,2),
+                        Nurse_ID INT,
+                        FOREIGN KEY (Nurse_ID) REFERENCES nurse(ID))''')
+        print("Ward Table setup done")
+
+    except Exception as e:
+        print("Error:", e)
+
+    mydb.close()
+
+def database_setup():
+    while True:
+        print("\nPress 1 to setup database")
+        print("Press 2 to setup tables")
+        print("Press 3 to go back to main menu\n")
+        ch = int(input("Enter your choice: "))
+        if ch == 1:
+            db_setup()
+        elif ch == 2:
+            tb_setup()
+        elif ch == 3:
+            return
+        else:
+            print("Invalid choice")
 
 # Function to validate date
 def is_valid_date(day, month, year):
@@ -765,39 +852,55 @@ def delete_ward():
 def display_wards():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
-
-    specific = input("Do you want to display specific ward (yes/no)? ")
-    if specific.lower() == 'yes':
-        Name = input("Enter ward name: ")
-        cur.execute("SELECT * FROM ward WHERE Name=%s", (Name,))
-        wards = cur.fetchall()
-    else:
-        cur.execute("SELECT * FROM ward")
-        wards = cur.fetchall()
-
-    if wards:
-        print("Name\tBeds Available\tPatients Admitted\tDaily Rent\tStaff Assigned")
-        for ward in wards:
-            print(f"{ward[0]}\t{ward[1]}\t{ward[2]}\t{ward[3]}\t{ward[4]}")
-    else:
-        print("No wards found")
-
+    
+    while True:
+        print('\nPress 1 to display all ward records')
+        print('Press 2 to display a specific ward')
+        print('Press 3 to return\n')
+        choice = int(input("Enter choice: "))
+        
+        if choice == 1:
+            cur.execute("SELECT * FROM ward")
+            records = cur.fetchall()
+            print('|Ward_ID| |Ward_Name| |Beds_Available| |Daily_Rent| |Nurse_ID|')
+            for record in records:
+                print(" | ".join(map(str, record)))
+            print("Ward records successfully displayed")
+        
+        elif choice == 2:
+            ward_id = int(input("Enter ward ID: "))
+            cur.execute("SELECT * FROM ward WHERE Ward_ID=%s", (ward_id,))
+            record = cur.fetchone()
+            if record:
+                print(" | ".join(map(str, record)))
+            else:
+                print("No ward found with the provided ID")
+        
+        elif choice == 3:
+            break
+        else:
+            print("Invalid choice")
+    
     mydb.close()
 
 # Main Program Loop
 def main():
     while True:
         print("\nHospital Management System")
-        print("1. Doctor")
-        print("2. Nurse")
-        print("3. Labour")
-        print("4. Patient")
-        print("5. Pharmacy")
-        print("6. Ward")
-        print("7. Exit")
+        print("1. Database Setup")
+        print("2. Doctor Management")
+        print("3. Nurse Management")
+        print("4. Labour Management")
+        print("5. Patient Management")
+        print("6. Pharmacy Management")
+        print("7. Ward Management")
+        print("8. Exit")
+        
         choice = int(input("Enter your choice: "))
 
         if choice == 1:
+            database_setup()
+        elif choice == 2:
             print("\nDoctor Management")
             print("1. Add Doctor")
             print("2. Update Doctor")
@@ -815,7 +918,8 @@ def main():
                 display_doctors()
             else:
                 print("Invalid choice")
-        elif choice == 2:
+        
+        elif choice == 3:
             print("\nNurse Management")
             print("1. Add Nurse")
             print("2. Update Nurse")
@@ -833,7 +937,8 @@ def main():
                 display_nurses()
             else:
                 print("Invalid choice")
-        elif choice == 3:
+        
+        elif choice == 4:
             print("\nLabour Management")
             print("1. Add Labour")
             print("2. Update Labour")
@@ -851,7 +956,8 @@ def main():
                 display_labours()
             else:
                 print("Invalid choice")
-        elif choice == 4:
+
+        elif choice == 5:
             print("\nPatient Management")
             print("1. Add Patient")
             print("2. Update Patient")
@@ -869,12 +975,13 @@ def main():
                 display_patients()
             else:
                 print("Invalid choice")
-        elif choice == 5:
+
+        elif choice == 6:
             print("\nPharmacy Management")
-            print("1. Add Pharmacy")
-            print("2. Update Pharmacy")
-            print("3. Delete Pharmacy")
-            print("4. Display Pharmacies")
+            print("1. Add Medicine")
+            print("2. Update Medicine")
+            print("3. Delete Medicine")
+            print("4. Display Pharmacy Records")
             sub_choice = int(input("Enter your choice: "))
 
             if sub_choice == 1:
@@ -884,10 +991,11 @@ def main():
             elif sub_choice == 3:
                 delete_pharmacy()
             elif sub_choice == 4:
-                display_pharmacies()
+                display_pharmacy()
             else:
                 print("Invalid choice")
-        elif choice == 6:
+
+        elif choice == 7:
             print("\nWard Management")
             print("1. Add Ward")
             print("2. Update Ward")
@@ -905,9 +1013,11 @@ def main():
                 display_wards()
             else:
                 print("Invalid choice")
-        elif choice == 7:
+
+        elif choice == 8:
             print("Exiting program...")
             break
+        
         else:
             print("Invalid choice")
 
