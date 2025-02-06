@@ -136,15 +136,22 @@ def add_doctor():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
 
-    ID = int(input("Enter doctor ID: "))
+    while True:
+    try:
+        ID = int(input("Enter doctor ID: "))
+        break
+    except ValueError:
+        print("Invalid input! Please enter a numeric value.")
+
     Name = input("Enter doctor name: ")
     Phone_Number = input("Enter doctor phone number: ")
     Address = input("Enter doctor address: ")
-    DOB = input("Enter doctor date of birth (dd/mm/yyyy): ")
+    DOB = format_valid_date(input("Enter doctor date of birth (dd/mm/yyyy): "))
     Speciality = input("Enter doctor speciality: ")
     Branch = input("Enter branch: ")
     Date_of_Joining = input("Enter date of joining (dd/mm/yyyy): ")
     Date_of_Resignation = input("Enter date of resignation (dd/mm/yyyy) or leave empty if still working: ")
+    Date_of_Resignation = format_valid_date(Date_of_Resignation) if Date_of_Resignation else None
 
     z = "INSERT INTO doctor (ID, Name, Phone_Number, Address, DOB, Speciality, Branch, Date_of_Joining, Date_of_Resignation) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
     y = (ID, Name, Phone_Number, Address, DOB, Speciality, Branch, Date_of_Joining, Date_of_Resignation)
@@ -262,7 +269,7 @@ def add_nurse():
     Name = input("Enter nurse name: ")
     Phone_Number = input("Enter nurse phone number: ")
     Address = input("Enter nurse address: ")
-    DOB = input("Enter nurse date of birth (dd/mm/yyyy): ")
+    DOB = format_valid_date(input("Enter nurse date of birth (dd/mm/yyyy): "))
     Department = input("Enter nurse department: ")
     Date_of_Joining = input("Enter date of joining (dd/mm/yyyy): ")
 
@@ -373,7 +380,7 @@ def add_labour():
     Name = input("Enter labour name: ")
     Phone_Number = input("Enter labour phone number: ")
     Address = input("Enter labour address: ")
-    DOB = input("Enter labour date of birth (dd/mm/yyyy): ")
+    DOB = format_valid_date(input("Enter labour date of birth (dd/mm/yyyy): "))
     Department = input("Enter labour department: ")
     Date_of_Joining = input("Enter date of joining (dd/mm/yyyy): ")
 
@@ -481,48 +488,6 @@ def display_labours():
 
 
 # Patient Management
-def add_patient():
-    mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
-    cur = mydb.cursor()
-
-    ID = int(input("Enter patient ID: "))
-    Name = input("Enter patient name: ")
-    Phone_Number = input("Enter patient phone number: ")
-    Address = input("Enter patient address: ")
-    DOB = input("Enter patient date of birth (dd/mm/yyyy): ")
-    Date_of_Appointment = input("Enter date of appointment (dd/mm/yyyy): ")
-    Branch_of_Consultancy = input("Enter branch of consultancy: ")
-    Doctor_ID = int(input("Enter Doctor ID: "))
-    
-    cur.execute("SELECT Name, Speciality FROM doctor WHERE ID=%s", (Doctor_ID,))
-    doctor = cur.fetchone()
-    if not doctor:
-        print("Error: Doctor ID does not exist.")
-        return
-
-    Doctor_Name, Speciality = doctor
-    
-    cur.execute("INSERT INTO patient (ID, Name, Phone_Number, Address, DOB, Date_of_Appointment, Branch_of_Consultancy, Doctor_ID, Doctor_Name, Speciality) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-           (ID, Name, Phone_Number, Address, DOB, Date_of_Appointment, Branch_of_Consultancy, Doctor_ID, Doctor_Name, Speciality))
-    mydb.commit()
-    
-    admitted = input("Is the patient admitted? (yes/no): ").lower()
-    if admitted == 'yes':
-        Ward_ID = int(input("Enter ward ID: "))
-        cur.execute("SELECT Daily_Rent FROM ward WHERE ID=%s", (Ward_ID,))
-        ward = cur.fetchone()
-        
-        if not ward:
-            print("Error: Ward ID does not exist.")
-            return
-        
-        cur.execute("INSERT INTO admission (Patient_ID, Ward_ID) VALUES (%s, %s)", (ID, Ward_ID))
-        mydb.commit()
-    
-    mydb.close()
-    print("Patient added successfully")
-
-import mysql.connector as con
 
 def add_patient():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
@@ -532,8 +497,8 @@ def add_patient():
     Name = input("Enter patient name: ")
     Phone_Number = input("Enter patient phone number: ")
     Address = input("Enter patient address: ")
-    DOB = input("Enter patient date of birth (dd/mm/yyyy): ")
-    Date_of_Appointment = input("Enter date of appointment (dd/mm/yyyy): ")
+    DOB = format_valid_date(input("Enter patient date of birth (dd/mm/yyyy): "))
+    Date_of_Appointment = format_valid_date(input("Enter date of appointment (dd/mm/yyyy): "))
     Branch_of_Consultancy = input("Enter branch of consultancy: ")
     Doctor_ID = int(input("Enter Doctor ID: "))
     
