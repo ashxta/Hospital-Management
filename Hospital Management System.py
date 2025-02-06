@@ -361,37 +361,31 @@ def add_patient():
     Branch_of_Consultancy = input("Enter branch of consultancy: ")
     Doctor_ID = int(input("Enter Doctor ID: "))
     
-    # Fetch Doctor Details
     cur.execute("SELECT Name, Speciality FROM doctor WHERE ID=%s", (Doctor_ID,))
     doctor = cur.fetchone()
-    
     if not doctor:
         print("Error: Doctor ID does not exist.")
         return
-    
+
     Doctor_Name, Speciality = doctor
     
-    z = "INSERT INTO patient (ID, Name, Phone_Number, Address, DOB, Date_of_Appointment, Branch_of_Consultancy, Doctor_ID, Doctor_Name, Speciality) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    y = (ID, Name, Phone_Number, Address, DOB, Date_of_Appointment, Branch_of_Consultancy, Doctor_ID, Doctor_Name, Speciality)
+    cur.execute("INSERT INTO patient (ID, Name, Phone_Number, Address, DOB, Date_of_Appointment, Branch_of_Consultancy, Doctor_ID, Doctor_Name, Speciality) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (ID, Name, Phone_Number, Address, DOB, Date_of_Appointment, Branch_of_Consultancy, Doctor_ID, Doctor_Name, Speciality))
+    mydb.commit()
     
-    cur.execute(z, y)
-    mydb.commit()
-    mydb.close()
-    print("Patient added successfully")
-
-    admitted = input("Is the patient admitted? (yes/no): ")
-    if admitted.lower() == 'yes':
-        Ward_Name = input("Enter ward name: ")
-        Bed_Number = input("Enter bed number: ")
-        Days_Admitted = int(input("Enter number of days admitted: "))
-        Doctor_Assigned = input("Enter doctor assigned: ")
-        Total_Bill = float(input("Enter total bill generated: "))
-
-        z = "INSERT INTO admission (Patient_ID, Ward_Name, Bed_Number, Days_Admitted, Doctor_Assigned, Total_Bill) VALUES (%s, %s, %s, %s, %s, %s)"
-        y = (ID, Ward_Name, Bed_Number, Days_Admitted, Doctor_Assigned, Total_Bill)
-        cur.execute(z, y)
-
-    mydb.commit()
+    admitted = input("Is the patient admitted? (yes/no): ").lower()
+    if admitted == 'yes':
+        Ward_ID = int(input("Enter ward ID: "))
+        cur.execute("SELECT Daily_Rent FROM ward WHERE ID=%s", (Ward_ID,))
+        ward = cur.fetchone()
+        
+        if not ward:
+            print("Error: Ward ID does not exist.")
+            return
+        
+        cur.execute("INSERT INTO admission (Patient_ID, Ward_ID) VALUES (%s, %s)", (ID, Ward_ID))
+        mydb.commit()
+    
     mydb.close()
     print("Patient added successfully")
 
@@ -589,36 +583,20 @@ def add_ward():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
 
+    ID = int(input("Enter ward ID: "))
     Name = input("Enter ward name: ")
     Beds_Available = int(input("Enter number of beds available: "))
-    Patients_Admitted = int(input("Enter number of patients admitted: "))
     Daily_Rent = float(input("Enter daily rent: "))
-    Staff_Assigned = input("Enter staff assigned: ")
-    Doctor_ID = int(input("Enter Doctor ID: "))
     Nurse_ID = int(input("Enter Nurse ID: "))
     
-    # Fetch Doctor Details
-    cur.execute("SELECT Name, Speciality FROM doctor WHERE ID=%s", (Doctor_ID,))
-    doctor = cur.fetchone()
-    
-    # Fetch Nurse Details
-    cur.execute("SELECT Name, Department FROM nurse WHERE ID=%s", (Nurse_ID,))
+    cur.execute("SELECT Name FROM nurse WHERE ID=%s", (Nurse_ID,))
     nurse = cur.fetchone()
-    
-    if not doctor:
-        print("Error: Doctor ID does not exist.")
-        return
-    
     if not nurse:
         print("Error: Nurse ID does not exist.")
         return
     
-    Doctor_Name, Speciality = doctor
-    Nurse_Name, Department = nurse
-    z = "INSERT INTO ward (Name, Beds_Available, Patients_Admitted, Daily_Rent, Staff_Assigned, Doctor_ID, Doctor_Name, Speciality, Nurse_ID, Nurse_Name, Department) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    y = (Name, Beds_Available, Patients_Admitted, Daily_Rent, Staff_Assigned, Doctor_ID, Doctor_Name, Speciality, Nurse_ID, Nurse_Name, Department)
-    
-    cur.execute(z, y)
+    cur.execute("INSERT INTO ward (ID, Name, Beds_Available, Daily_Rent, Nurse_ID) VALUES (%s, %s, %s, %s, %s)",
+                (ID, Name, Beds_Available, Daily_Rent, Nurse_ID))
     mydb.commit()
     mydb.close()
     print("Ward added successfully")
