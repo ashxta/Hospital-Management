@@ -122,23 +122,30 @@ def delete_doctor():
 def display_doctors():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
-
-    specific = input("Do you want to display specific ID (yes/no)? ")
-    if specific.lower() == 'yes':
-        ID = int(input("Enter doctor ID: "))
-        cur.execute("SELECT * FROM doctor WHERE ID=%s", (ID,))
-        doctors = cur.fetchall()
-    else:
-        cur.execute("SELECT * FROM doctor")
-        doctors = cur.fetchall()
-
-    if doctors:
-        print("ID\tName\tPhone Number\tAddress\tDOB\tSpeciality\tBranch\tDate of Joining\tDate of Resignation")
-        for doctor in doctors:
-            print(f"{doctor[0]}\t{doctor[1]}\t{doctor[2]}\t{doctor[3]}\t{doctor[4]}\t{doctor[5]}\t{doctor[6]}\t{doctor[7]}\t{doctor[8]}")
-    else:
-        print("No doctors found")
-
+    while True:
+        print('\nPress 1 to display all doctor records')
+        print('Press 2 to display a specific doctor')
+        print('Press 3 to return\n')
+        choice = int(input("Enter choice: "))
+        if choice == 1:
+            cur.execute("SELECT * FROM doctor")
+            records = cur.fetchall()
+            print('|Doctor_ID| |Name| |Speciality| |Phone Number| |Address| |Branch|')
+            for record in records:
+                print(" | ".join(map(str, record)))
+            print("Doctor records successfully displayed")
+        elif choice == 2:
+            doctor_id = int(input("Enter doctor ID: "))
+            cur.execute("SELECT * FROM doctor WHERE Doctor_ID=%s", (doctor_id,))
+            record = cur.fetchone()
+            if record:
+                print(" | ".join(map(str, record)))
+            else:
+                print("No doctor found with the provided ID")
+        elif choice == 3:
+            break
+        else:
+            print("Invalid choice")
     mydb.close()
 
 # Nurse Management
@@ -225,24 +232,32 @@ def delete_nurse():
 def display_nurses():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
-
-    specific = input("Do you want to display specific ID (yes/no)? ")
-    if specific.lower() == 'yes':
-        ID = int(input("Enter nurse ID: "))
-        cur.execute("SELECT * FROM nurse WHERE ID=%s", (ID,))
-        nurses = cur.fetchall()
-    else:
-        cur.execute("SELECT * FROM nurse")
-        nurses = cur.fetchall()
-
-    if nurses:
-        print("ID\tName\tPhone Number\tAddress\tDOB\tDepartment\tDate of Joining")
-        for nurse in nurses:
-            print(f"{nurse[0]}\t{nurse[1]}\t{nurse[2]}\t{nurse[3]}\t{nurse[4]}\t{nurse[5]}\t{nurse[6]}")
-    else:
-        print("No nurses found")
-
+    while True:
+        print('\nPress 1 to display all nurse records')
+        print('Press 2 to display a specific nurse')
+        print('Press 3 to return\n')
+        choice = int(input("Enter choice: "))
+        if choice == 1:
+            cur.execute("SELECT * FROM nurse")
+            records = cur.fetchall()
+            print('|Nurse_ID| |Name| |Department| |Phone Number| |Address|')
+            for record in records:
+                print(" | ".join(map(str, record)))
+            print("Nurse records successfully displayed")
+        elif choice == 2:
+            nurse_id = int(input("Enter nurse ID: "))
+            cur.execute("SELECT * FROM nurse WHERE Nurse_ID=%s", (nurse_id,))
+            record = cur.fetchone()
+            if record:
+                print(" | ".join(map(str, record)))
+            else:
+                print("No nurse found with the provided ID")
+        elif choice == 3:
+            break
+        else:
+            print("Invalid choice")
     mydb.close()
+
 
 # Labour Management
 def add_labour():
@@ -325,27 +340,35 @@ def delete_labour():
     mydb.commit()
     mydb.close()
 
-def display_labours():
+def display_wards():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
-
-    specific = input("Do you want to display specific ID (yes/no)? ")
-    if specific.lower() == 'yes':
-        ID = int(input("Enter labour ID: "))
-        cur.execute("SELECT * FROM labour WHERE ID=%s", (ID,))
-        labours = cur.fetchall()
-    else:
-        cur.execute("SELECT * FROM labour")
-        labours = cur.fetchall()
-
-    if labours:
-        print("ID\tName\tPhone Number\tAddress\tDOB\tDepartment\tDate of Joining")
-        for labour in labours:
-            print(f"{labour[0]}\t{labour[1]}\t{labour[2]}\t{labour[3]}\t{labour[4]}\t{labour[5]}\t{labour[6]}")
-    else:
-        print("No labours found")
-
+    while True:
+        print('\nPress 1 to display all ward records')
+        print('Press 2 to display a specific ward')
+        print('Press 3 to return\n')
+        choice = int(input("Enter choice: "))
+        if choice == 1:
+            cur.execute("SELECT * FROM ward")
+            records = cur.fetchall()
+            print('|Ward_ID| |Name| |Beds Available| |Daily Rent| |Nurse_ID|')
+            for record in records:
+                print(" | ".join(map(str, record)))
+            print("Ward records successfully displayed")
+        elif choice == 2:
+            ward_id = int(input("Enter ward ID: "))
+            cur.execute("SELECT * FROM ward WHERE Ward_ID=%s", (ward_id,))
+            record = cur.fetchone()
+            if record:
+                print(" | ".join(map(str, record)))
+            else:
+                print("No ward found with the provided ID")
+        elif choice == 3:
+            break
+        else:
+            print("Invalid choice")
     mydb.close()
+
 
 # Patient Management
 def add_patient():
@@ -511,86 +534,107 @@ def delete_patient():
 def display_patients():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
-
-    specific = input("Do you want to display specific ID (yes/no)? ")
-    if specific.lower() == 'yes':
-        ID = int(input("Enter patient ID: "))
-        cur.execute("SELECT * FROM patient WHERE ID=%s", (ID,))
-        patients = cur.fetchall()
-    else:
-        cur.execute("SELECT * FROM patient")
-        patients = cur.fetchall()
-
-    if patients:
-        print("ID\tName\tPhone Number\tAddress\tDOB\tDate of Appointment\tBranch of Consultancy")
-        for patient in patients:
-            print(f"{patient[0]}\t{patient[1]}\t{patient[2]}\t{patient[3]}\t{patient[4]}\t{patient[5]}\t{patient[6]}")
-    else:
-        print("No patients found")
-
+    while True:
+        print('\nPress 1 to display all patient records')
+        print('Press 2 to display a specific patient')
+        print('Press 3 to return\n')
+        choice = int(input("Enter choice: "))
+        if choice == 1:
+            cur.execute("SELECT * FROM patient")
+            records = cur.fetchall()
+            print('|Patient_ID| |Name| |Phone Number| |Address| |DOB| |Date of Appointment| |Branch of Consultancy| |Doctor_ID|')
+            for record in records:
+                print(" | ".join(map(str, record)))
+            print("Patient records successfully displayed")
+        elif choice == 2:
+            patient_id = int(input("Enter patient ID: "))
+            cur.execute("SELECT * FROM patient WHERE Patient_ID=%s", (patient_id,))
+            record = cur.fetchone()
+            if record:
+                print(" | ".join(map(str, record)))
+            else:
+                print("No patient found with the provided ID")
+        elif choice == 3:
+            break
+        else:
+            print("Invalid choice")
     mydb.close()
 
 # Pharmacy Management
 def add_pharmacy():
+ef add_pharmacy():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
 
-    ID = int(input("Enter pharmacy ID: "))
-    Name = input("Enter pharmacy name: ")
-    Phone_Number = input("Enter pharmacy phone number: ")
-    Address = input("Enter pharmacy address: ")
-    DOB = input("Enter pharmacy date of birth (dd/mm/yyyy): ")
-    Date_of_Joining = input("Enter date of joining (dd/mm/yyyy): ")
-
-    z = "INSERT INTO pharmacy (ID, Name, Phone_Number, Address, DOB, Date_of_Joining) VALUES (%s, %s, %s, %s, %s, %s)"
-    y = (ID, Name, Phone_Number, Address, DOB, Date_of_Joining)
+    Medicine_ID = int(input("Enter medicine ID: "))
+    Medicine_Name = input("Enter medicine name: ")
     
-    cur.execute(z, y)
+    Mfg_Day, Mfg_Month, Mfg_Year = map(int, input("Enter medicine manufacturing date (dd mm yyyy): ").split())
+    if not is_valid_date(Mfg_Day, Mfg_Month, Mfg_Year):
+        print("Error: Invalid manufacturing date.")
+        return
+    Manufacturing_Date = f"{Mfg_Year}-{Mfg_Month:02d}-{Mfg_Day:02d}"
+    
+    Exp_Day, Exp_Month, Exp_Year = map(int, input("Enter medicine expiry date (dd mm yyyy): ").split())
+    if not is_valid_date(Exp_Day, Exp_Month, Exp_Year):
+        print("Error: Invalid expiry date.")
+        return
+    Expiry_Date = f"{Exp_Year}-{Exp_Month:02d}-{Exp_Day:02d}"
+    
+    Medicine_Price = float(input("Enter medicine price: "))
+    Units_Available = int(input("Enter units available: "))
+    
+    cur.execute("INSERT INTO pharmacy (Medicine_ID, Medicine_Name, Manufacturing_Date, Expiry_Date, Medicine_Price, Units_Available) VALUES (%s, %s, %s, %s, %s, %s)",
+                (Medicine_ID, Medicine_Name, Manufacturing_Date, Expiry_Date, Medicine_Price, Units_Available))
     mydb.commit()
     mydb.close()
-    print("Pharmacy added successfully")
+    print("Medicine added successfully")
 
 def update_pharmacy():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
 
-    ID = int(input("Enter pharmacy ID to update: "))
-    print("1. Update Name")
-    print("2. Update Phone Number")
-    print("3. Update Address")
-    print("4. Update Date of Birth")
-    print("5. Update Date of Joining")
+    Medicine_ID = int(input("Enter medicine ID to update: "))
+    print("1. Update Medicine Name")
+    print("2. Update Manufacturing Date")
+    print("3. Update Expiry Date")
+    print("4. Update Medicine Price")
+    print("5. Update Units Available")
     choice = int(input("Enter your choice: "))
-
+    
     if choice == 1:
-        Name = input("Enter updated name: ")
-        z = "UPDATE pharmacy SET Name=%s WHERE ID=%s"
-        y = (Name, ID)
+        new_value = input("Enter updated medicine name: ")
+        column = "Medicine_Name"
     elif choice == 2:
-        Phone_Number = input("Enter updated phone number: ")
-        z = "UPDATE pharmacy SET Phone_Number=%s WHERE ID=%s"
-        y = (Phone_Number, ID)
+        day, month, year = map(int, input("Enter updated manufacturing date (dd mm yyyy): ").split())
+        if not is_valid_date(day, month, year):
+            print("Error: Invalid manufacturing date.")
+            return
+        new_value = f"{year}-{month:02d}-{day:02d}"
+        column = "Manufacturing_Date"
     elif choice == 3:
-        Address = input("Enter updated address: ")
-        z = "UPDATE pharmacy SET Address=%s WHERE ID=%s"
-        y = (Address, ID)
+        day, month, year = map(int, input("Enter updated expiry date (dd mm yyyy): ").split())
+        if not is_valid_date(day, month, year):
+            print("Error: Invalid expiry date.")
+            return
+        new_value = f"{year}-{month:02d}-{day:02d}"
+        column = "Expiry_Date"
     elif choice == 4:
-        DOB = input("Enter updated date of birth (dd/mm/yyyy): ")
-        z = "UPDATE pharmacy SET DOB=%s WHERE ID=%s"
-        y = (DOB, ID)
+        new_value = float(input("Enter updated medicine price: "))
+        column = "Medicine_Price"
     elif choice == 5:
-        Date_of_Joining = input("Enter updated date of joining (dd/mm/yyyy): ")
-        z = "UPDATE pharmacy SET Date_of_Joining=%s WHERE ID=%s"
-        y = (Date_of_Joining, ID)
+        new_value = int(input("Enter updated units available: "))
+        column = "Units_Available"
     else:
         print("Invalid choice")
         return
-
-    cur.execute(z, y)
+    
+    query = f"UPDATE pharmacy SET {column} = %s WHERE Medicine_ID = %s"
+    cur.execute(query, (new_value, Medicine_ID))
     if cur.rowcount > 0:
-        print("Pharmacy details updated successfully")
+        print("Medicine details updated successfully")
     else:
-        print("No pharmacy found with the provided ID")
+        print("No medicine found with the provided ID")
     mydb.commit()
     mydb.close()
 
@@ -598,39 +642,44 @@ def delete_pharmacy():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
 
-    ID = int(input("Enter pharmacy ID to delete: "))
-    z = "DELETE FROM pharmacy WHERE ID=%s"
-    y = (ID,)
-
-    cur.execute(z, y)
+    Medicine_ID = int(input("Enter medicine ID to delete: "))
+    cur.execute("DELETE FROM pharmacy WHERE Medicine_ID = %s", (Medicine_ID,))
     if cur.rowcount > 0:
-        print("Pharmacy deleted successfully")
+        print("Medicine deleted successfully")
     else:
-        print("No pharmacy found with the provided ID")
+        print("No medicine found with the provided ID")
     mydb.commit()
     mydb.close()
-
-def display_pharmacies():
+def display_pharmacy():
     mydb = con.connect(host='localhost', user='root', passwd='root', database='hospital_management')
     cur = mydb.cursor()
-
-    specific = input("Do you want to display specific ID (yes/no)? ")
-    if specific.lower() == 'yes':
-        ID = int(input("Enter pharmacy ID: "))
-        cur.execute("SELECT * FROM pharmacy WHERE ID=%s", (ID,))
-        pharmacies = cur.fetchall()
-    else:
-        cur.execute("SELECT * FROM pharmacy")
-        pharmacies = cur.fetchall()
-
-    if pharmacies:
-        print("ID\tName\tPhone Number\tAddress\tDOB\tDate of Joining")
-        for pharmacy in pharmacies:
-            print(f"{pharmacy[0]}\t{pharmacy[1]}\t{pharmacy[2]}\t{pharmacy[3]}\t{pharmacy[4]}\t{pharmacy[5]}")
-    else:
-        print("No pharmacies found")
-
+    while True:
+        print('\nPress 1 to display all pharmacy records')
+        print('Press 2 to display a specific medicine')
+        print('Press 3 to return\n')
+        choice = int(input("Enter choice: "))
+        if choice == 1:
+            cur.execute("SELECT * FROM pharmacy")
+            records = cur.fetchall()
+            print('|Medicine_ID| |Medicine_Name| |Manufacturing_Date| |Expiry_Date| |Medicine_Price| |Units_Available|')
+            for record in records:
+                print(" | ".join(map(str, record)))
+            print("Pharmacy records successfully displayed")
+        elif choice == 2:
+            medicine_id = int(input("Enter medicine ID: "))
+            cur.execute("SELECT * FROM pharmacy WHERE Medicine_ID=%s", (medicine_id,))
+            record = cur.fetchone()
+            if record:
+                print(" | ".join(map(str, record)))
+            else:
+                print("No medicine found with the provided ID")
+        elif choice == 3:
+            break
+        else:
+            print("Invalid choice")
     mydb.close()
+
+
 
 # Ward Management
 def add_ward():
